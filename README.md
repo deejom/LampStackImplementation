@@ -32,7 +32,8 @@
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/73895ae0-69d7-4cb4-b193-58a7f4303a34)
 
 - Adding rule to EC2 configuration to open inbound connection via port 80
-![image](https://github.com/deejom/LampStackImplementation/assets/141459374/37caa3ea-d013-40a8-bb0a-8cf8fd4b314f)
+![image](https://github.com/yemikareem/LampStackImplementation/assets/141459374/8146c912-0f19-4114-9851-0262d13a2457)
+![image](https://github.com/yemikareem/LampStackImplementation/assets/141459374/f686a84e-35dd-43f7-9cb0-6f9205e5f90c)
 
 - Checking how to access it locally in our Ubuntu shell - "curl http://localhost:80" or "curl http://127.0.0.1:80"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/5bde721a-70eb-4314-ae28-9f7ec7f6717b)
@@ -93,7 +94,7 @@ At this point, LAMP stack is completely installed and fully operational:
 - Open and create a new configuration in Apache's site-available - "sudo vi /etc/apache2/sites-available/projectlamp.conf"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/4639d1a4-bc38-4d44-8d98-9adf4152523e)
 
-This creates a new blank file. Paste the following by hitting on :i: on the keyboard: 
+This creates a new blank file. Paste the following by hitting on "i" on the keyboard: 
 <VirtualHost *:80>
     ServerName projectlamp
     ServerAlias www.projectlamp 
@@ -105,10 +106,10 @@ This creates a new blank file. Paste the following by hitting on :i: on the keyb
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/007b98ca-8a79-4a00-b139-2468f27faecf)
 
 - To save and close the file: 
-    1. Hit the esc button on the keyboard
-    2. Type :
-    3. Type wq, w for write, q for quit
-    4. Hit ENTER to save the file
+    1. Hit the "esc" button on the keyboard
+    2. Type ":"
+    3. Type "wq", w for write, q for quit
+    4. Hit "ENTER" to save the file
 
 - To check the new file in the site-available directory - "sudo ls /etc/apache2/sites-available"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/49fbd5ce-9f61-4b65-a9a0-be4aab032497)
@@ -116,16 +117,16 @@ This creates a new blank file. Paste the following by hitting on :i: on the keyb
 - To enable the new virtual host - "sudo a2ensite projectlamp"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/57794402-b3e2-4f98-b722-4f2b6490e4a7)
 
-- To disable default website that comes installed with Apache - "sudo a2dissite 000-default"
+- To disable the default website that comes installed with Apache - "sudo a2dissite 000-default"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/177435ed-5a25-44e1-bd8b-0383c5d471c2)
 
-- To ensure the configutation file does not contain syntax eror - "sudo apache2ctl configtest"
+- To ensure the configuration file does not contain syntax error - "sudo apache2ctl configtest"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/53d00b97-c083-410a-b443-52705c3573ea)
 
 - To reload Apache such that these changes may take effect - "sudo systemctl reload apache2"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/e4a29040-74e0-40d0-921a-d3b6deda0566)
 
-At this point website is active, but the web root/var/www/projectlamp is still empty
+At this point, the website is active, but the web root/var/www/projectlamp is still empty
 
 - To create an index html file in that location to test if the virtual host works - "sudo echo 'Hello LAMP from hostname' $(curl -s http://169.254.169.254/latest/meta-data/public-hostname) 'with public IP' $(curl -s http://169.254.169.254/latest/meta-data/public-ipv4) > /var/www/projectlamp/index.html"
 ![image](https://github.com/deejom/LampStackImplementation/assets/141459374/52e91eb2-3987-44a7-bdf3-13facdf3ecf9)
@@ -141,8 +142,39 @@ In the output, the public hostname (DNS name) and pubic IP address can be seen
 
 ### STEP 5: ENABLING PHP ON THE WEBSITE 
 
+Because of the default DirectoryIndex on Apache, any file named index.html will always take precedence over the index.php file. We can use this to set up maintenance pages on PHP applications by creating a temporary index.html file containing informative messages to visitors. And because this page will take precedence over the index.php page, it will become the application's landing page. Once the maintenance is over, the index.html is renamed or removed from the document root, bringing back the regular application page.
+
+- To change this behaviour, edit the /etc/apache2/mods-enabled/dir.conf file and change the order in which the index.php file is listed within the DirectoryIndex directive - "sudo vim /etc/apache2/mods-enabled/dir.conf"
+![image](https://github.com/yemikareem/LampStackImplementation/assets/141459374/f2fe9ce7-8235-4fdc-88d2-bc8bc85c6e07)
+<IfModule mod_dir.c>
+
+  #Change this:
+
+  #DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm
+
+  #To this:
+
+  DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+
+</IfModule>
+
+- After saving and closing the file, reload Apache so that the changes can take effect - "sudo systemctl reload apache2"
+![image](https://github.com/yemikareem/LampStackImplementation/assets/141459374/d981a8cf-4b5e-4359-86c7-a0d0f16548a7)
+
+- Creating a PHP script to test PHP correct installation and configuration on the server, and to confirm that Apache is able to handle process requests for PHP files. 
+1. Create a new file named index.php inside your customer web root folder - "vim /var/www/projectlamp/index.php"
+![image](https://github.com/yemikareem/LampStackImplementation/assets/141459374/a9d0ebc4-af91-4964-8ac9-ff85d26cc273)
+
+2. Add the following text, which is a valid PHP code inside the file -
+
+"<?PHP"
+
+"phpinfo();"
+![image](https://github.com/yemikareem/LampStackImplementation/assets/141459374/36dd67d5-daf0-4a76-89c4-b9ca268ca397)
+
+3. When done, save and close the file. Refresh the page, and the below will load up:  
+![image](https://github.com/yemikareem/LampStackImplementation/assets/141459374/6d0e827a-f7e6-4e9c-b7cf-993a622502ae)
 
 
 
-
-
+LampStackImplementation Project Completed! (c) Yemi Kareem, 2023. 
